@@ -285,6 +285,33 @@ files:
     }
 
   learner_created: false
+- name: src/search/Main.kt
+  visible: true
+  text: "package search\n\nimport java.io.File\nimport java.util.*\n\nfun main(args:\
+    \ Array<String>) {\n    val engine = SearchEngine(args[1]);\n    engine.serve()\n\
+    }\n\nclass SearchEngine(fileName: String) {\n\n    private var lines: List<String>\
+    \ = emptyList()\n    private val scanner = Scanner(System.`in`)\n\n    fun serve()\
+    \ {\n        while (true) {\n            when (askMode()) {\n                1\
+    \ -> doSearch()\n                2 -> printAll()\n                0 -> {\n   \
+    \                 println(\"Bye\") \n                    return\n            \
+    \    }\n                else -> println(\"Incorrect option! Try again.\")\n  \
+    \          }\n        }\n    }\n\n    fun askMode(): Int {\n        println(\"\
+    \\n=== Menu ===\")\n        println(\"1. Find a person\")\n        println(\"\
+    2. Print all people\")\n        println(\"0. Exit\")\n\n        return scanner.nextLine().toInt()\n\
+    \    }\n\n\n    fun doSearch() {\n        println(\"\\nEnter data to search people:\"\
+    )\n        val term = scanner.nextLine()!!.toUpperCase()\n        var isFirstResult\
+    \ = true\n        var isFoundInAnyLine = false\n        for (line in lines) {\n\
+    \            var isFoundInLine = false\n            for (word in line.split(\"\
+    \ \")) {\n                if (word.toUpperCase().contains(term)) {\n         \
+    \           isFoundInLine = true\n                    isFoundInAnyLine = true\n\
+    \                    break\n                }\n            }\n            if (isFoundInLine\
+    \ && isFirstResult) {\n                println(\"\\nFound people:\")\n       \
+    \         isFirstResult = false\n            }\n            if (isFoundInLine)\
+    \ println(line)\n        }\n        if (!isFoundInAnyLine) println(\"No matching\
+    \ people found.\")\n    }\n\n    private fun printAll() {\n        println(\"\\\
+    n=== List of people ===\")\n        lines.forEach { println(it) }\n    }\n\n \
+    \   init {\n        lines = File(fileName).readLines()\n    }\n}\n"
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/89/stages/498/implement
 status: Unchecked
-record: -1
+record: 5

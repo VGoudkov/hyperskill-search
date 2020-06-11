@@ -1,35 +1,27 @@
 package search
 
+import java.io.File
 import java.util.*
 
-fun main() {
-    val scanner = Scanner(System.`in`)
-
-    val engine = SearchEngine(scanner);
-
-    engine.init()
+fun main(args: Array<String>) {
+    val engine = SearchEngine(args[1]);
     engine.serve()
 }
 
-class SearchEngine(val scanner: Scanner) {
+class SearchEngine(fileName: String) {
 
-    val data: MutableList<String> = mutableListOf()
-
-    fun init() {
-        println("Enter the number of people:")
-        val lines = scanner.nextLine().toInt()
-
-        println("Enter all people:")
-        for (i in 1..lines) data.add(scanner.nextLine()!!)
-    }
-
+    private var lines: List<String> = emptyList()
+    private val scanner = Scanner(System.`in`)
 
     fun serve() {
         while (true) {
             when (askMode()) {
                 1 -> doSearch()
                 2 -> printAll()
-                0 -> return
+                0 -> {
+                    println("Bye") 
+                    return
+                }
                 else -> println("Incorrect option! Try again.")
             }
         }
@@ -50,7 +42,7 @@ class SearchEngine(val scanner: Scanner) {
         val term = scanner.nextLine()!!.toUpperCase()
         var isFirstResult = true
         var isFoundInAnyLine = false
-        for (line in data) {
+        for (line in lines) {
             var isFoundInLine = false
             for (word in line.split(" ")) {
                 if (word.toUpperCase().contains(term)) {
@@ -70,6 +62,10 @@ class SearchEngine(val scanner: Scanner) {
 
     private fun printAll() {
         println("\n=== List of people ===")
-        data.forEach { println(it) }
+        lines.forEach { println(it) }
+    }
+
+    init {
+        lines = File(fileName).readLines()
     }
 }
