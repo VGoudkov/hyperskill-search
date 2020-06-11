@@ -4,14 +4,17 @@ import java.io.File
 import java.util.*
 
 fun main(args: Array<String>) {
-    val engine = SearchEngine(args[1]);
+    val engine = SearchEngine();
+    engine.readData(args[1])
     engine.serve()
 }
 
-class SearchEngine(fileName: String) {
+class SearchEngine() {
 
     private var lines: List<String> = emptyList()
     private val scanner = Scanner(System.`in`)
+    private val index = mutableMapOf<String, MutableList<Int>>()
+    val UNKNOWN_OPTION = -1
 
     fun serve() {
         while (true) {
@@ -19,7 +22,7 @@ class SearchEngine(fileName: String) {
                 1 -> doSearch()
                 2 -> printAll()
                 0 -> {
-                    println("Bye") 
+                    println("Bye")
                     return
                 }
                 else -> println("Incorrect option! Try again.")
@@ -33,31 +36,28 @@ class SearchEngine(fileName: String) {
         println("2. Print all people")
         println("0. Exit")
 
-        return scanner.nextLine().toInt()
+        return try {
+            scanner.nextLine().toInt()
+        } catch (e: Exception) {
+            return UNKNOWN_OPTION
+        }
     }
 
-
     fun doSearch() {
-        println("\nEnter data to search people:")
-        val term = scanner.nextLine()!!.toUpperCase()
-        var isFirstResult = true
-        var isFoundInAnyLine = false
-        for (line in lines) {
-            var isFoundInLine = false
-            for (word in line.split(" ")) {
-                if (word.toUpperCase().contains(term)) {
-                    isFoundInLine = true
-                    isFoundInAnyLine = true
-                    break
-                }
-            }
-            if (isFoundInLine && isFirstResult) {
-                println("\nFound people:")
-                isFirstResult = false
-            }
-            if (isFoundInLine) println(line)
+        println("\nEnter a name or email to search all suitable people.")
+        val term = scanner.nextLine()!!.toUpperCase().trim()
+
+        val linesList = index[term]
+
+        if (linesList == null) {
+            println("No matching people found.")
+            return
         }
-        if (!isFoundInAnyLine) println("No matching people found.")
+
+        println("\nFound people:")
+        linesList.forEach {
+            println(lines[it])
+        }
     }
 
     private fun printAll() {
@@ -65,7 +65,21 @@ class SearchEngine(fileName: String) {
         lines.forEach { println(it) }
     }
 
-    init {
+    fun readData(fileName: String) {
+
         lines = File(fileName).readLines()
+        for (lineIndex in lines.indices) {
+            for (word in lines[lineIndex].toUpperCase().split(" ")) {
+                if (word.trim().isEmpty()) continue
+                val wordLines = index[word]
+                if (wordLines == null) {
+                    index[word] = mutableListOf(lineIndex)
+                } else {
+                    if (!wordLines.contains(lineIndex)) wordLines.add(lineIndex)
+                }
+
+            }
+        }
     }
+
 }

@@ -313,5 +313,5 @@ files:
     \   init {\n        lines = File(fileName).readLines()\n    }\n}\n"
   learner_created: true
 feedback_link: https://hyperskill.org/projects/89/stages/498/implement
-status: Unchecked
+status: Solved
 record: 5
