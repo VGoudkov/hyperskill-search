@@ -25,9 +25,13 @@ class SearchEngine() {
                     println("Bye")
                     return
                 }
-                else -> println("Incorrect option! Try again.")
+                else -> sayIncorrectOption()
             }
         }
+    }
+
+    private fun sayIncorrectOption() {
+        println("Incorrect option! Try again.")
     }
 
     fun askMode(): Int {
@@ -43,21 +47,72 @@ class SearchEngine() {
         }
     }
 
+
     fun doSearch() {
+
+        println("Select a matching strategy: ALL, ANY, NONE")
+        val strategy = scanner.nextLine()!!.toUpperCase().trim()
+
         println("\nEnter a name or email to search all suitable people.")
-        val term = scanner.nextLine()!!.toUpperCase().trim()
+        val searchLine = scanner.nextLine()!!.toUpperCase().trim()
+        val searchWords = searchLine.split(" ").toMutableList()
+        for (i in searchWords.indices) {
+            searchWords[i] = searchWords[i].trim()
+        }
 
-        val linesList = index[term]
+        val foundSet =
+                when (strategy) {
+                    "ALL" -> searchAll(searchWords)
+                    "ANY" -> searchAny(searchWords)
+                    "NONE" -> searchNone(searchWords)
+                    else -> {
+                        sayIncorrectOption(); return
+                    }
+                }
 
-        if (linesList == null) {
+        if (foundSet.isEmpty()) {
             println("No matching people found.")
             return
         }
 
         println("\nFound people:")
-        linesList.forEach {
+        foundSet.forEach {
             println(lines[it])
         }
+    }
+
+    private fun searchAny(searchWords: List<String>): Set<Int> {
+        val ret = mutableSetOf<Int>()
+        for (searchWord in searchWords) {
+            val found = index[searchWord]
+            if (found != null) {
+                ret.addAll(found)
+            }
+        }
+        return ret
+    }
+
+    private fun searchNone(searchWords: List<String>): Set<Int> {
+        val ret = mutableSetOf<Int>()
+        val found = searchAny(searchWords)
+        for (i in lines.indices) {
+            if (!found.contains(i)) ret.add(i)
+        }
+        return ret
+    }
+
+    private fun searchAll(searchWords: List<String>): Set<Int> {
+        val ret = mutableSetOf<Int>()
+        var foundAll = true
+        for (searchWord in searchWords) {
+            val found = index[searchWord]
+            if (found != null) {
+                ret.addAll(found)
+            } else {
+                foundAll = false
+            }
+        }
+        return if (foundAll) ret else mutableSetOf<Int>()
     }
 
     private fun printAll() {
@@ -66,7 +121,6 @@ class SearchEngine() {
     }
 
     fun readData(fileName: String) {
-
         lines = File(fileName).readLines()
         for (lineIndex in lines.indices) {
             for (word in lines[lineIndex].toUpperCase().split(" ")) {
